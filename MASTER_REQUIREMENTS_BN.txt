@@ -1,0 +1,133 @@
+ARIF FASHION HOUSE — FREE ONLINE SHOP
+MASTER REQUIREMENTS / FEATURE LOCK
+
+এই ফাইলটি মূল specification। পরের কাজগুলো এই তালিকা অনুসারে করতে হবে।
+নতুন feature যোগ হলে পুরোনো feature বাদ দেওয়া যাবে না।
+
+১. BUSINESS FLOW
+Facebook Page
+→ Free Online Shop
+→ Men / Women / Kids
+→ Product
+→ Colour / Size / Quantity
+→ Cart
+→ Order Form
+→ Delivery charge
+→ Payment method
+→ Order confirmation
+→ Customer review
+
+২. PLATFORM / COST
+- শুরুতে সম্পূর্ণ Free
+- Paid domain/hosting এখন নয়
+- পরে প্রয়োজন হলে upgrade করা যাবে
+- Mobile থেকে ব্যবস্থাপনা অগ্রাধিকার
+
+৩. FACEBOOK
+- Arif Fashion House Facebook Page থাকবে মূল প্রচারের জায়গা
+- Facebook post/reel/ad থেকে website link
+- Website আলাদা থাকবে, Facebook-এর উপর পুরোপুরি নির্ভরশীল হবে না
+
+৪. PRODUCT CATALOG
+- Men
+- Women
+- Kids
+- New Arrival
+- Offers
+- Product photo
+- Product name
+- Product description
+- Current price
+- Old price
+- Discount
+- Colour
+- Size
+- Available stock / quantity
+- YouTube product video
+
+৫. SHOPPING
+- Add to Cart
+- Buy/Order
+- Cart-এ product photo
+- Cart-এ colour
+- Cart-এ size
+- Cart-এ quantity
+- Multiple products একসাথে order করার ব্যবস্থা
+
+৬. ORDER FORM
+Customer order করার সময় দেখতে পারবে:
+- Product picture
+- Product name
+- Colour
+- Size
+- Quantity
+- Product subtotal
+- Delivery charge
+- Total amount
+- Customer name
+- Mobile number
+- Delivery area
+- Full address
+
+৭. DELIVERY
+- Dhaka delivery charge
+- Outside Dhaka delivery charge
+- Charge পরে সহজে পরিবর্তনযোগ্য
+
+৮. PAYMENT
+- Cash on Delivery
+- Personal bKash
+- Personal Nagad
+- bKash/Nagad হলে payment mobile number
+- Transaction ID
+- bKash/Nagad নম্বর পরে owner-এর আসল নম্বর দিয়ে replace করা যাবে
+
+৯. REAL CUSTOMER REVIEW
+- Fake review নয়
+- Delivered order-এর customer review
+- Rating
+- Written review
+- Customer photo (প্রয়োজনে)
+- Verified Purchase
+- Admin approval-এর পর publish
+
+১০. VIDEO
+- Product page-এ YouTube video
+- Customer product video দেখতে পারবে
+
+১১. ORDER MANAGEMENT
+প্রথম Free version-এ সহজ order flow রাখা হবে।
+পরের ধাপে Google Sheets/Forms ভিত্তিক central order list যোগ করা যাবে।
+Order status:
+New → Confirmed → Processing → Shipped → Delivered
+
+১২. EDITING RULE
+- নতুন feature যোগ করার সময় পুরোনো feature delete করা যাবে না
+- Product data আলাদা/পরিষ্কারভাবে রাখা হবে যাতে price, colour, size, stock ইত্যাদি বারবার edit করা যায়
+- একবারের কাজের কারণে আগের কাজ নষ্ট করা যাবে না
+- প্রতিটি update হবে version-based
+- v1/v2/v3-এর মতো আগের version রাখা হবে
+- কোনো feature সরাতে হলে আগে owner-এর অনুমতি নিতে হবে
+
+১৩. LAUNCH STRATEGY
+- শুরুতে অল্প কয়েকটি product
+- একই structure পরে অনেক product-এর জন্য ব্যবহার
+- প্রথমে Free
+- পরে প্রয়োজন অনুযায়ী upgrade
+
+STATUS
+বর্তমান কাজ: Master specification locked.
+পরের development এই তালিকা ধরে additive update হিসেবে করতে হবে।
+
+
+১৪. EDIT / CORRECTION PANEL
+- প্রতিটি editable field-এর Edit/Save option থাকবে
+- Product name, photo, category, price, old price, discount, colour, size, stock edit করা যাবে
+- Delivery charge edit করা যাবে
+- bKash/Nagad/WhatsApp number edit করা যাবে
+- ভুল তথ্য Save হয়ে গেলে আবার Edit করে সংশোধন করা যাবে
+- Add Product option থাকবে
+- Delete option থাকবে
+- Backup/Export option থাকবে
+- কোনো ভুল input-এর কারণে customer-facing design ভেঙে না যায়, তাই input validation ধাপে ধাপে যোগ করা হবে
+- Free prototype-এর local edit data পরে online shared database-এ migrate করা যাবে

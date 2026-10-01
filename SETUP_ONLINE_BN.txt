@@ -1,0 +1,25 @@
+ARIF FASHION HOUSE — FREE ONLINE SETUP (v6)
+
+এই v6-এ আগের feature রাখা হয়েছে এবং Google Sheets backend-এর জন্য প্রস্তুত করা হয়েছে। এতে Products, Settings, Orders, Reviews আলাদা sheet হবে।
+
+১) Google Drive থেকে একটি নতুন Google Sheet বানান। নাম দিন: Arif Fashion House Database
+২) Extensions → Apps Script খুলুন।
+৩) Code.gs ফাইলের পুরোনো code মুছে এই ZIP-এর Code.gs code paste করুন।
+৪) Save করুন।
+৫) Run → setup চালান এবং Google permission চাইলে Allow দিন।
+৬) Deploy → New deployment → Web app নির্বাচন করুন।
+   Execute as: Me
+   Who has access: Anyone
+৭) Deploy করে Web app URL কপি করুন।
+
+তারপর website-এর admin panel-এ API URL বসানো যাবে।
+
+গুরুত্বপূর্ণ:
+- v6-এ Google Sheet-ই central database হবে।
+- Product/price/size/colour/stock/settings edit করলে central data update করার ব্যবস্থা রাখা হয়েছে।
+- Orders Google Sheet-এর Orders tab-এ জমা রাখার ব্যবস্থা আছে।
+- Reviews Reviews tab-এ জমা হবে; approved=true হলে public review দেখানো যাবে।
+- আপনার আসল bKash/Nagad/WhatsApp নম্বর না দেওয়া পর্যন্ত demo number বদলাবেন না।
+- Google Sheet-এর Web App URL কাউকে admin password হিসেবে ব্যবহার করবেন না। এটি backend endpoint; admin security পরে আলাদা করে শক্ত করা যাবে।
+
+পরবর্তী ধাপে: আপনার Web App URL বসিয়ে v6-কে live data sync-এর সঙ্গে যুক্ত করা হবে।

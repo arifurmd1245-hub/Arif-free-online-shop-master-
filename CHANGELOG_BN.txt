@@ -1,0 +1,20 @@
+Arif Fashion House Online Shop — Change Log
+
+v1 — Basic free shop structure
+v2 — Product colour + quantity selection
+v3 — Order form product picture + colour + size + quantity + COD/bKash/Nagad fields
+v4 — Master requirements locked; future updates preserve existing features
+v5 — Mobile-friendly Edit Panel added: Product/price/colour/size/stock/settings edit, add/delete, backup export
+
+Rule:
+প্রতিটি নতুন version আগের feature ধরে রাখবে। নতুন কাজ = Add/Improve, not Delete.
+
+
+v6.1 — Stability & Management Improvement
+- Stock quantity validation added
+- Cart browser persistence added
+- Dynamic bKash/Nagad payment number in order instructions
+- Customer review submission form added
+- Admin order status management added
+- Admin review approval controls added
+- Existing v6 features preserved
