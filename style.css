@@ -14,3 +14,5 @@
 .payment-fields{padding:10px;background:#0e0e0e;border:1px solid #332b1a;border-radius:10px}
 
 .review-form{padding:0 16px 28px;max-width:650px}.review-form button{margin-top:8px}.reviews-submit{background:#0c0c0c}
+
+.cart-controls{display:flex;align-items:center;gap:6px;margin-top:8px}.cart-controls button{width:30px;height:30px;margin:0;padding:0;border:1px solid #555;border-radius:7px;background:#242424;color:#fff;font-weight:800}.cart-controls .cart-remove{width:auto;padding:0 8px;background:#321818;border-color:#5b2b2b}.cart-controls b{min-width:24px;text-align:center}
