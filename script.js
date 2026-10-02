@@ -1,6 +1,6 @@
 const CONFIG = {
   apiUrl: "https://script.google.com/macros/s/AKfycbzfAGTQsCSPxzcNWEppOdDFPnxCzFquHdwGyeGgumftrA4ZXS1HclIrO1U5cgVKCNfx9A/exec", // Google Apps Script Web App URL
-  whatsappNumber: "8801XXXXXXXXX", // আপনার WhatsApp নম্বর
+  whatsappNumber: "8801881245159", // আপনার WhatsApp নম্বর
   bkashNumber: "01XXXXXXXXX",      // আপনার personal bKash নম্বর
   nagadNumber: "01XXXXXXXXX",      // আপনার personal Nagad নম্বর
   dhakaDelivery: 60,
