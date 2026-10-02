@@ -193,11 +193,12 @@ document.getElementById("orderForm").addEventListener("submit",e=>{
   const items=cart.map(x=>`${x.name} | Color: ${x.color} | Size: ${x.size} | Qty: ${x.qty} = ৳${x.price*x.qty}`).join("\n");
   const msg=`Arif Fashion House - New Order\n\nCustomer: ${name}\nMobile: ${phone}\nArea: ${area}\nAddress: ${address}\n\nProducts:\n${items}\n\nSubtotal: ৳${subtotal}\nDelivery: ৳${delivery}\nTotal: ৳${total}\nPayment: ${payment}\nPayment Mobile: ${paymentPhone || "N/A"}\nTransaction ID: ${transactionId || "N/A"}`;
   postOnline({action:"order",order:{timestamp:new Date().toISOString(),orderId:"AFH-"+Date.now(),customerName:name,customerPhone:phone,area:area,address:address,items:items,subtotal:subtotal,delivery:delivery,total:total,payment:payment,paymentPhone:paymentPhone,transactionId:transactionId,status:"New"}});
-  if(!CONFIG_DATA.whatsappNumber || CONFIG_DATA.whatsappNumber.includes("X")){
+  const waNumber = (CONFIG_DATA.whatsappNumber && !CONFIG_DATA.whatsappNumber.includes("X")) ? CONFIG_DATA.whatsappNumber : CONFIG.whatsappNumber;
+  if(!waNumber || waNumber.includes("X")){
     alert("আগে script.js ফাইলে আপনার WhatsApp নম্বর বসান।");
     return;
   }
-  window.open(`https://wa.me/${CONFIG_DATA.whatsappNumber}?text=${encodeURIComponent(msg)}`,"_blank");
+  window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(msg)}`,"_blank");
   cart=[];
   localStorage.setItem("arifCart","[]");
   updateCart();
