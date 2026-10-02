@@ -23,7 +23,14 @@ let shopData = JSON.parse(localStorage.getItem("arifShopData")||"null") || demoD
 let products = shopData.products || demoData.products;
 let CONFIG_DATA = shopData.settings || demoData.settings;
 let cart = JSON.parse(localStorage.getItem("arifCart")||"[]");
-function applyShopData(d){ if(!d||!Array.isArray(d.products)||d.products.length===0)return; shopData=d; products=d.products; CONFIG_DATA=d.settings||demoData.settings; localStorage.setItem("arifShopData",JSON.stringify(d)); renderProducts(); updateCart(); renderReviews(); }
+function updateDeliveryChargeDisplay(){
+  const areaEl=document.getElementById("deliveryArea");
+  const hint=document.getElementById("deliveryChargeHint");
+  if(!areaEl||!hint)return;
+  const delivery=areaEl.value==="Dhaka"?Number(CONFIG_DATA.dhakaDelivery):Number(CONFIG_DATA.outsideDhakaDelivery);
+  hint.textContent=`Delivery Charge: ৳${money(delivery)}`;
+}
+function applyShopData(d){ if(!d||!Array.isArray(d.products)||d.products.length===0)return; shopData=d; products=d.products; CONFIG_DATA=d.settings||demoData.settings; localStorage.setItem("arifShopData",JSON.stringify(d)); renderProducts(); updateCart(); renderReviews(); updateDeliveryChargeDisplay(); }
 function loadOnlineData(){
   const url=localStorage.getItem('arifApiUrl')||CONFIG.apiUrl;
   if(!url)return;
@@ -153,13 +160,14 @@ function renderOrderSummary(){
       <span>Quantity: ${x.qty}</span></div>
       <strong>৳${money(x.price*x.qty)}</strong>
     </div>`).join("")+
-    `<div class="order-subtotal">
-      Product Total: ৳${money(subtotal)}<br>
-      Delivery Charge: ৳${money(delivery)}<br>
-      <strong>Grand Total: ৳${money(total)}</strong>
+    `<div class="order-totals">
+      <div>Product Total <span>৳${money(subtotal)}</span></div>
+      <div>Delivery Charge <span>৳${money(delivery)}</span></div>
+      <div class="grand-total">Grand Total <span>৳${money(total)}</span></div>
     </div>`;
 }
 function updateOrderTotals(){
+  updateDeliveryChargeDisplay();
   renderOrderSummary();
 }
 function togglePaymentFields(){
@@ -209,6 +217,7 @@ document.getElementById("orderForm").addEventListener("submit",e=>{
 renderProducts();
 updateCart();
 renderReviews();
+updateDeliveryChargeDisplay();
 loadOnlineData();
 
 function renderReviews(){const box=document.getElementById('reviewList'); if(!box)return; const rs=(shopData.reviews||[]).filter(r=>r.approved===true||String(r.approved).toLowerCase()==='true'); box.innerHTML=rs.length?rs.map(r=>`<article class="review-card"><div>${'★'.repeat(Number(r.rating)||5)}${'☆'.repeat(5-(Number(r.rating)||5))}</div><p>${r.review||''}</p><small>${r.verified===true||String(r.verified).toLowerCase()==='true'?'Verified Purchase':'Customer Review'}${r.customerName?' — '+r.customerName:''}</small></article>`).join(''):'<article class="review-card"><p>এখনও কোনো approved review নেই।</p></article>'; }
