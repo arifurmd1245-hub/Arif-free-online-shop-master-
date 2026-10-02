@@ -88,13 +88,43 @@ function addToCart(id){
   updateCart();
   alert(`${p.name} | Color: ${color} | Quantity: ${qty} — Cart-এ যোগ হয়েছে`);
 }
+function changeCartQty(encodedKey, delta){
+  const key=decodeURIComponent(encodedKey);
+  const item=cart.find(x=>x.key===key);
+  if(!item)return;
+  const product=products.find(p=>p.id===item.id);
+  const stock=Math.max(1, Number(product?.stock||item.stock||1));
+  const next=item.qty+delta;
+  if(next<1){ removeFromCart(encodedKey); return; }
+  if(next>stock){ alert(`Stock অনুযায়ী সর্বোচ্চ ${stock}টি রাখা যাবে।`); return; }
+  item.qty=next;
+  updateCart();
+}
+function removeFromCart(encodedKey){
+  const key=decodeURIComponent(encodedKey);
+  cart=cart.filter(x=>x.key!==key);
+  updateCart();
+}
 function updateCart(){
   document.getElementById("cartCount").textContent=cart.reduce((s,x)=>s+x.qty,0);
-  document.getElementById("cartItems").innerHTML=cart.length?cart.map(x=>`
-    <div class="cart-line"><div class="cart-product">
-      ${x.image ? `<img src="${x.image}" alt="${x.name}">` : `<div class="cart-placeholder">Photo</div>`}
-      <span>${x.name} × ${x.qty}<br><small>Color: ${x.color} • Size: ${x.size}</small></span>
-    </div><b>৳${money(x.price*x.qty)}</b></div>`).join(""):"Cart খালি";
+  document.getElementById("cartItems").innerHTML=cart.length?cart.map(x=>{
+    const encodedKey=encodeURIComponent(x.key);
+    return `
+    <div class="cart-line">
+      <div class="cart-product">
+        ${x.image ? `<img src="${x.image}" alt="${x.name}">` : `<div class="cart-placeholder">Photo</div>`}
+        <span>${x.name}<br><small>Color: ${x.color} • Size: ${x.size}</small>
+          <span class="cart-controls">
+            <button type="button" onclick="changeCartQty('${encodedKey}',-1)">−</button>
+            <b>${x.qty}</b>
+            <button type="button" onclick="changeCartQty('${encodedKey}',1)">+</button>
+            <button type="button" class="cart-remove" onclick="removeFromCart('${encodedKey}')">❌</button>
+          </span>
+        </span>
+      </div>
+      <b>৳${money(x.price*x.qty)}</b>
+    </div>`;
+  }).join(""):"Cart খালি";
   document.getElementById("cartTotal").textContent=money(cart.reduce((s,x)=>s+x.price*x.qty,0));
   localStorage.setItem("arifCart",JSON.stringify(cart));
 }
@@ -109,6 +139,11 @@ function goToOrder(){
 }
 function renderOrderSummary(){
   const box=document.getElementById("orderSummary");
+  const areaEl=document.getElementById("deliveryArea");
+  const area=areaEl ? areaEl.value : "Dhaka";
+  const subtotal=cart.reduce((s,x)=>s+x.price*x.qty,0);
+  const delivery=area==="Dhaka"?Number(CONFIG_DATA.dhakaDelivery):Number(CONFIG_DATA.outsideDhakaDelivery);
+  const total=subtotal+delivery;
   box.innerHTML=`<h3>আপনার Order</h3>`+cart.map(x=>`
     <div class="order-item">
       ${x.image ? `<img src="${x.image}" alt="${x.name}">` : `<div class="order-placeholder">Product Photo</div>`}
@@ -118,7 +153,14 @@ function renderOrderSummary(){
       <span>Quantity: ${x.qty}</span></div>
       <strong>৳${money(x.price*x.qty)}</strong>
     </div>`).join("")+
-    `<div class="order-subtotal">Product Total: ৳${money(cart.reduce((s,x)=>s+x.price*x.qty,0))}</div>`;
+    `<div class="order-subtotal">
+      Product Total: ৳${money(subtotal)}<br>
+      Delivery Charge: ৳${money(delivery)}<br>
+      <strong>Grand Total: ৳${money(total)}</strong>
+    </div>`;
+}
+function updateOrderTotals(){
+  renderOrderSummary();
 }
 function togglePaymentFields(){
   const method=document.getElementById("paymentMethod").value;
@@ -135,6 +177,7 @@ function togglePaymentFields(){
 }
 function closeOrder(){document.getElementById("orderModal").classList.add("hidden")}
 
+document.getElementById("deliveryArea").addEventListener("change",updateOrderTotals);
 document.getElementById("orderForm").addEventListener("submit",e=>{
   e.preventDefault();
   const name=document.getElementById("customerName").value.trim();
