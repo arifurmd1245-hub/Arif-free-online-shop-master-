@@ -199,9 +199,11 @@ function togglePaymentFields(){
     fields.classList.add("hidden");
   }else{
     fields.classList.remove("hidden");
+    const bkash = (CONFIG_DATA.bkashNumber && !String(CONFIG_DATA.bkashNumber).includes("X")) ? CONFIG_DATA.bkashNumber : CONFIG.bkashNumber;
+    const nagad = (CONFIG_DATA.nagadNumber && !String(CONFIG_DATA.nagadNumber).includes("X")) ? CONFIG_DATA.nagadNumber : CONFIG.nagadNumber;
     instructions.textContent = method==="bKash"
-      ? "bKash নম্বর: 01XXXXXXXXX — আগে payment করে Transaction ID দিন।"
-      : "Nagad নম্বর: 01XXXXXXXXX — আগে payment করে Transaction ID দিন।";
+      ? `bKash নম্বর: ${bkash} — আগে payment করে Transaction ID দিন.`
+      : `Nagad নম্বর: ${nagad} — আগে payment করে Transaction ID দিন.`;
   }
 }
 function closeOrder(){document.getElementById("orderModal").classList.add("hidden")}
