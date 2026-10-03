@@ -23,14 +23,7 @@ let shopData = JSON.parse(localStorage.getItem("arifShopData")||"null") || demoD
 let products = shopData.products || demoData.products;
 let CONFIG_DATA = shopData.settings || demoData.settings;
 let cart = JSON.parse(localStorage.getItem("arifCart")||"[]");
-function updateDeliveryChargeDisplay(){
-  const areaEl=document.getElementById("deliveryArea");
-  const hint=document.getElementById("deliveryChargeHint");
-  if(!areaEl||!hint)return;
-  const delivery=areaEl.value==="Dhaka"?Number(CONFIG_DATA.dhakaDelivery):Number(CONFIG_DATA.outsideDhakaDelivery);
-  hint.textContent=`Delivery Charge: ৳${money(delivery)}`;
-}
-function applyShopData(d){ if(!d||!Array.isArray(d.products)||d.products.length===0)return; shopData=d; products=d.products; CONFIG_DATA=d.settings||demoData.settings; localStorage.setItem("arifShopData",JSON.stringify(d)); renderProducts(); updateCart(); renderReviews(); updateDeliveryChargeDisplay(); }
+function applyShopData(d){ if(!d||!Array.isArray(d.products)||d.products.length===0)return; shopData=d; products=d.products; CONFIG_DATA=d.settings||demoData.settings; localStorage.setItem("arifShopData",JSON.stringify(d)); renderProducts(); updateCart(); renderReviews(); }
 function loadOnlineData(){
   const url=localStorage.getItem('arifApiUrl')||CONFIG.apiUrl;
   if(!url)return;
@@ -56,16 +49,27 @@ function renderProducts(list=products){
         <div class="meta">${p.category} • Size: ${p.sizes}</div>
         <div class="meta">🎨 Color: ${p.colors}</div><p class="meta">${p.description||""}</p>${p.youtube?`<a href="${p.youtube}" target="_blank" rel="noopener">▶️ Product Video</a>`:""}
         <div class="price"><strong>৳${money(p.price)}</strong> <span class="old">৳${money(p.old)}</span></div>
-        <div class="buy-row">
-          <label class="mini">Size
-            <select id="size-${p.id}">${p.sizes.split("/").map(x=>`<option>${x}</option>`).join("")}</select>
-          </label>
-          <label class="mini">Color
-            <select id="color-${p.id}">${p.colors.split(", ").map(c=>`<option>${c}</option>`).join("")}</select>
-          </label>
-          <label class="mini">Qty
-            <input id="qty-${p.id}" type="number" min="1" max="${p.stock||1}" value="1">
-          </label>
+        <div class="product-options">
+          <div class="option-block">
+            <div class="option-title">Size</div>
+            <div class="option-buttons" id="size-options-${p.id}">
+              ${(p.sizes||"One Size").split("/").map((x,i)=>`<button type="button" class="option-pill ${i===0?'active':''}" onclick='selectProductOption(${p.id},"size",${JSON.stringify(x)})'>${x}</button>`).join("")}
+            </div>
+          </div>
+          <div class="option-block">
+            <div class="option-title">Color</div>
+            <div class="option-buttons" id="color-options-${p.id}">
+              ${(p.colors||"Default").split(",").map((c,i)=>{const v=c.trim();return `<button type="button" class="option-pill ${i===0?'active':''}" onclick='selectProductOption(${p.id},"color",${JSON.stringify(v)})'>${v}</button>`}).join("")}
+            </div>
+          </div>
+          <div class="option-block qty-block">
+            <div class="option-title">Quantity</div>
+            <div class="qty-stepper">
+              <button type="button" onclick="changeProductQty(${p.id},-1)">−</button>
+              <span id="qty-${p.id}">1</span>
+              <button type="button" onclick="changeProductQty(${p.id},1)">+</button>
+            </div>
+          </div>
         </div>
         <button onclick="addToCart(${p.id})">Add to Cart</button>
       </div>
@@ -76,15 +80,33 @@ function filterProducts(cat,btn){
   if(btn) btn.classList.add("active");
   renderProducts(cat==="All"?products:products.filter(p=>cat==="Offers"?p.discount:p.category===cat));
 }
+function selectProductOption(id,type,value){
+  const wrap=document.getElementById(`${type}-options-${id}`);
+  if(!wrap)return;
+  wrap.querySelectorAll('.option-pill').forEach(btn=>btn.classList.toggle('active',btn.textContent.trim()===String(value).trim()));
+}
+function getProductOption(id,type){
+  const wrap=document.getElementById(`${type}-options-${id}`);
+  const active=wrap?.querySelector('.option-pill.active');
+  return active ? active.textContent.trim() : '';
+}
+function changeProductQty(id,delta){
+  const p=products.find(x=>x.id===id);
+  const el=document.getElementById(`qty-${id}`);
+  if(!p||!el)return;
+  const max=Math.max(1,Number(p.stock)||1);
+  const next=Math.min(max,Math.max(1,(parseInt(el.textContent,10)||1)+delta));
+  el.textContent=next;
+}
 function addToCart(id){
   const p=products.find(x=>x.id===id);
   if(!p)return;
-  const requested=Math.max(1, parseInt(document.getElementById(`qty-${id}`).value||"1"));
+  const requested=Math.max(1, parseInt(document.getElementById(`qty-${id}`).textContent||"1"));
   const available=Number(p.stock)||0;
   const qty=Math.min(requested, available);
   if(available<1){alert("এই Product-এর Stock শেষ।");return;}
-  const color=document.getElementById(`color-${id}`).value;
-  const size=document.getElementById(`size-${id}`).value;
+  const color=getProductOption(id,'color');
+  const size=getProductOption(id,'size');
   const key=`${id}-${color}-${size}`;
   const item=cart.find(x=>x.key===key);
   if(item){
@@ -160,14 +182,13 @@ function renderOrderSummary(){
       <span>Quantity: ${x.qty}</span></div>
       <strong>৳${money(x.price*x.qty)}</strong>
     </div>`).join("")+
-    `<div class="order-totals">
-      <div>Product Total <span>৳${money(subtotal)}</span></div>
-      <div>Delivery Charge <span>৳${money(delivery)}</span></div>
-      <div class="grand-total">Grand Total <span>৳${money(total)}</span></div>
+    `<div class="order-subtotal">
+      Product Total: ৳${money(subtotal)}<br>
+      Delivery Charge: ৳${money(delivery)}<br>
+      <strong>Grand Total: ৳${money(total)}</strong>
     </div>`;
 }
 function updateOrderTotals(){
-  updateDeliveryChargeDisplay();
   renderOrderSummary();
 }
 function togglePaymentFields(){
@@ -217,7 +238,6 @@ document.getElementById("orderForm").addEventListener("submit",e=>{
 renderProducts();
 updateCart();
 renderReviews();
-updateDeliveryChargeDisplay();
 loadOnlineData();
 
 function renderReviews(){const box=document.getElementById('reviewList'); if(!box)return; const rs=(shopData.reviews||[]).filter(r=>r.approved===true||String(r.approved).toLowerCase()==='true'); box.innerHTML=rs.length?rs.map(r=>`<article class="review-card"><div>${'★'.repeat(Number(r.rating)||5)}${'☆'.repeat(5-(Number(r.rating)||5))}</div><p>${r.review||''}</p><small>${r.verified===true||String(r.verified).toLowerCase()==='true'?'Verified Purchase':'Customer Review'}${r.customerName?' — '+r.customerName:''}</small></article>`).join(''):'<article class="review-card"><p>এখনও কোনো approved review নেই।</p></article>'; }
