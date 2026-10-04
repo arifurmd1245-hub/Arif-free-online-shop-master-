@@ -172,6 +172,8 @@ function renderOrderSummary(){
   const area=areaEl ? areaEl.value : "Dhaka";
   const subtotal=cart.reduce((s,x)=>s+x.price*x.qty,0);
   const delivery=area==="Dhaka"?Number(CONFIG_DATA.dhakaDelivery):Number(CONFIG_DATA.outsideDhakaDelivery);
+  const chargeDisplay=document.getElementById("deliveryChargeDisplay");
+  if(chargeDisplay) chargeDisplay.textContent=`Delivery Charge: ৳${money(delivery)}`;
   const total=subtotal+delivery;
   box.innerHTML=`<h3>আপনার Order</h3>`+cart.map(x=>`
     <div class="order-item">
