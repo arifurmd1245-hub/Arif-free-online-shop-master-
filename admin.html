@@ -9,7 +9,12 @@
 
 <body>
 
+<!-- =========================
+     ADMIN LOGIN / SETUP
+========================= -->
+
 <div id="loginScreen" class="modal">
+
   <div class="modal-box" style="max-width:420px;margin:60px auto">
 
     <h2 id="loginTitle">🔐 Admin Login</h2>
@@ -18,10 +23,14 @@
       Admin Panel-এ প্রবেশ করতে Password দিন।
     </p>
 
+
+    <!-- FIRST TIME / RESET PASSWORD -->
+
     <div id="setupArea" class="hidden">
 
       <label>
         নতুন Password
+
         <input
           id="newPassword"
           type="password"
@@ -30,8 +39,10 @@
         >
       </label>
 
+
       <label>
         Password আবার লিখুন
+
         <input
           id="confirmPassword"
           type="password"
@@ -39,6 +50,7 @@
           autocomplete="new-password"
         >
       </label>
+
 
       <button
         class="primary"
@@ -50,10 +62,14 @@
 
     </div>
 
+
+    <!-- NORMAL LOGIN -->
+
     <div id="loginArea">
 
       <label>
         Admin Password
+
         <input
           id="adminPassword"
           type="password"
@@ -63,6 +79,7 @@
         >
       </label>
 
+
       <button
         class="primary"
         type="button"
@@ -70,21 +87,29 @@
       >
         🔓 Login
       </button>
+
+
       <button
-  type="button"
-  onclick="resetAdminPassword()"
-  style="margin-top:10px"
->
-  🔄 Forgot / Reset Password
+        type="button"
+        onclick="resetAdminPasswordUI()"
+        style="margin-top:10px"
+      >
+        🔄 Forgot / Reset Password
       </button>
 
     </div>
 
   </div>
+
 </div>
 
 
+<!-- =========================
+     ADMIN APP
+========================= -->
+
 <div id="adminApp" class="hidden">
+
 
 <header class="topbar">
 
@@ -101,11 +126,16 @@
 
   </div>
 
+
   <div style="display:flex;gap:8px;align-items:center">
 
-    <a class="admin-link" href="index.html">
+    <a
+      class="admin-link"
+      href="index.html"
+    >
       Store
     </a>
+
 
     <button
       type="button"
@@ -121,239 +151,418 @@
 
 <main>
 
-  <section class="box">
 
-    <h2>📊 Admin Dashboard</h2>
+<!-- =========================
+     DASHBOARD
+========================= -->
 
-    <div
-      style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px"
-    >
+<section class="box">
 
-      <div class="box">
-        <b>📦 Products</b>
-        <h2 id="productCount">0</h2>
-      </div>
+  <h2>📊 Admin Dashboard</h2>
 
-      <div class="box">
-        <b>🛒 Orders</b>
-        <h2 id="orderCount">0</h2>
-      </div>
 
-      <div class="box">
-        <b>⏳ Pending</b>
-        <h2 id="pendingCount">0</h2>
-      </div>
+  <div
+    style="
+      display:grid;
+      grid-template-columns:
+      repeat(auto-fit,minmax(130px,1fr));
+      gap:10px
+    "
+  >
+
+    <div class="box">
+
+      <b>📦 Products</b>
+
+      <h2 id="productCount">
+        0
+      </h2>
 
     </div>
 
-  </section>
+
+    <div class="box">
+
+      <b>🛒 Orders</b>
+
+      <h2 id="orderCount">
+        0
+      </h2>
+
+    </div>
 
 
-  <section class="box">
+    <div class="box">
 
-    <h2>⚙️ Website Settings</h2>
+      <b>⏳ Pending</b>
 
-    <input
-      id="setBrand"
-      placeholder="Brand name"
-    >
+      <h2 id="pendingCount">
+        0
+      </h2>
 
-    <input
-      id="setHero"
-      placeholder="Hero title"
-    >
+    </div>
 
-    <input
-      id="setShipping"
-      type="number"
-      placeholder="Default delivery charge"
-    >
+  </div>
 
-    <textarea
-      id="setWarning"
-      placeholder="Confirm order warning"
-    ></textarea>
-
-    <label>
-      <input
-        type="checkbox"
-        id="codOn"
-      >
-      Cash on Delivery enabled
-    </label>
-
-    <label>
-      <input
-        type="checkbox"
-        id="advanceOn"
-      >
-      Advance Payment enabled
-    </label>
-
-    <button
-      class="primary"
-      type="button"
-      onclick="saveSettings()"
-    >
-      Save Settings
-    </button>
-
-  </section>
+</section>
 
 
-  <section class="box">
+<!-- =========================
+     WEBSITE SETTINGS
+========================= -->
 
-    <h2>📦 Add / Edit Product</h2>
+<section class="box">
 
-    <input
-      type="hidden"
-      id="pId"
-    >
+  <h2>⚙️ Website Settings</h2>
 
-    <input
-      id="pName"
-      placeholder="Product name"
-    >
 
-    <select id="pCat">
+  <input
+    id="setBrand"
+    placeholder="Brand name"
+  >
 
-      <option value="men">
-        Men
-      </option>
 
-      <option value="women">
-        Women
-      </option>
+  <input
+    id="setHero"
+    placeholder="Hero title"
+  >
 
-      <option value="kids">
-        Kids
-      </option>
 
-    </select>
+  <input
+    id="setShipping"
+    type="number"
+    placeholder="Default delivery charge"
+  >
+
+
+  <textarea
+    id="setWarning"
+    placeholder="Confirm order warning"
+  ></textarea>
+
+
+  <label>
 
     <input
-      id="pImage"
-      placeholder="Image URL (optional)"
+      type="checkbox"
+      id="codOn"
     >
+
+    Cash on Delivery enabled
+
+  </label>
+
+
+  <label>
 
     <input
-      id="pPrice"
-      type="number"
-      placeholder="Regular price"
+      type="checkbox"
+      id="advanceOn"
     >
 
-    <input
-      id="pOld"
-      type="number"
-      placeholder="Old price (optional)"
-    >
+    Advance Payment enabled
 
-    <input
-      id="pColors"
-      placeholder="Colors: Black, Blue, Red"
-    >
-
-    <input
-      id="pSizes"
-      placeholder="Sizes: S, M, L, XL (blank if not applicable)"
-    >
-
-    <input
-      id="pVideo"
-      placeholder="YouTube/Facebook video link (optional)"
-    >
-
-    <textarea
-      id="pDesc"
-      placeholder="Product description"
-    ></textarea>
-
-    <button
-      class="primary"
-      type="button"
-      onclick="saveProduct()"
-    >
-      Save Product
-    </button>
-
-    <button
-      type="button"
-      onclick="clearProduct()"
-    >
-      Clear
-    </button>
-
-  </section>
+  </label>
 
 
-  <section>
+  <button
+    class="primary"
+    type="button"
+    onclick="saveSettings()"
+  >
+    Save Settings
+  </button>
 
-    <h2>🛍️ Products</h2>
-
-    <div
-      id="adminProducts"
-      class="grid"
-    ></div>
-
-  </section>
-
-
-  <section>
-
-    <h2>📋 Orders</h2>
-
-    <div
-      id="orders"
-      class="order-grid"
-    ></div>
-
-  </section>
+</section>
 
 
-  <section class="box">
+<!-- =========================
+     ADD / EDIT PRODUCT
+========================= -->
 
-    <h2>🔑 Security</h2>
+<section class="box">
 
-    <p class="note">
-      Admin Password পরিবর্তন করতে নিচের button ব্যবহার করুন।
-    </p>
+  <h2>📦 Add / Edit Product</h2>
 
-    <button
-      type="button"
-      onclick="changeAdminPassword()"
-    >
-      🔐 Change Admin Password
-    </button>
 
-  </section>
+  <input
+    type="hidden"
+    id="pId"
+  >
+
+
+  <input
+    id="pName"
+    placeholder="Product name"
+  >
+
+
+  <select id="pCat">
+
+    <option value="men">
+      Men
+    </option>
+
+    <option value="women">
+      Women
+    </option>
+
+    <option value="kids">
+      Kids
+    </option>
+
+  </select>
+
+
+  <input
+    id="pImage"
+    placeholder="Image URL (optional)"
+  >
+
+
+  <input
+    id="pPrice"
+    type="number"
+    placeholder="Regular price"
+  >
+
+
+  <input
+    id="pOld"
+    type="number"
+    placeholder="Old price (optional)"
+  >
+
+
+  <input
+    id="pColors"
+    placeholder="Colors: Black, Blue, Red"
+  >
+
+
+  <input
+    id="pSizes"
+    placeholder="Sizes: S, M, L, XL (blank if not applicable)"
+  >
+
+
+  <input
+    id="pVideo"
+    placeholder="YouTube/Facebook video link (optional)"
+  >
+
+
+  <textarea
+    id="pDesc"
+    placeholder="Product description"
+  ></textarea>
+
+
+  <button
+    class="primary"
+    type="button"
+    onclick="saveProduct()"
+  >
+    Save Product
+  </button>
+
+
+  <button
+    type="button"
+    onclick="clearProduct()"
+  >
+    Clear
+  </button>
+
+</section>
+
+
+<!-- =========================
+     PRODUCTS
+========================= -->
+
+<section>
+
+  <h2>🛍️ Products</h2>
+
+
+  <div
+    id="adminProducts"
+    class="grid"
+  ></div>
+
+</section>
+
+
+<!-- =========================
+     ORDERS
+========================= -->
+
+<section>
+
+  <h2>📋 Orders</h2>
+
+
+  <div
+    id="orders"
+    class="order-grid"
+  ></div>
+
+</section>
+
+
+<!-- =========================
+     SECURITY
+========================= -->
+
+<section class="box">
+
+  <h2>🔑 Security</h2>
+
+
+  <p class="note">
+    Admin Password পরিবর্তন করতে নিচের button ব্যবহার করুন।
+  </p>
+
+
+  <button
+    type="button"
+    onclick="changeAdminPassword()"
+  >
+    🔐 Change Admin Password
+  </button>
+
+</section>
+
 
 </main>
 
 </div>
 
 
+<!-- =========================
+     ADMIN JS
+========================= -->
+
 <script src="admin.js"></script>
 
-</body>
-  <script>
-function resetAdminPassword() {
+
+<!-- =========================
+     RESET UI FIX
+========================= -->
+
+<script>
+
+function resetAdminPasswordUI() {
+
   const ok = confirm(
     "Admin Password reset করতে চান?\n\n" +
     "শুধু Admin Login Password reset হবে।\n" +
-    "Product ও Order data মুছবে না।"
+    "Product, Order এবং Settings data মুছবে না।"
   );
 
-  if (!ok) return;
 
-  localStorage.removeItem("afh_admin_password_hash");
-  localStorage.removeItem("afh_admin_session");
+  if (!ok) {
+    return;
+  }
 
-  alert(
-    "✅ Password reset হয়েছে।\n\n" +
-    "এখন নতুন Admin Password তৈরি করুন।"
+
+  /* শুধু password/session remove হবে */
+
+  localStorage.removeItem(
+    "afh_admin_password_hash"
   );
 
-  location.reload();
+  localStorage.removeItem(
+    "afh_admin_session"
+  );
+
+
+  /* Login screen দেখাও */
+
+  const loginScreen =
+    document.getElementById("loginScreen");
+
+  const adminApp =
+    document.getElementById("adminApp");
+
+  const setupArea =
+    document.getElementById("setupArea");
+
+  const loginArea =
+    document.getElementById("loginArea");
+
+  const loginTitle =
+    document.getElementById("loginTitle");
+
+  const loginMessage =
+    document.getElementById("loginMessage");
+
+
+  if (adminApp) {
+    adminApp.classList.add("hidden");
+  }
+
+
+  if (loginScreen) {
+    loginScreen.classList.remove("hidden");
+  }
+
+
+  /* Create Password section দেখাও */
+
+  if (setupArea) {
+    setupArea.classList.remove("hidden");
+  }
+
+
+  if (loginArea) {
+    loginArea.classList.add("hidden");
+  }
+
+
+  if (loginTitle) {
+    loginTitle.textContent =
+      "🔐 Create Admin Password";
+  }
+
+
+  if (loginMessage) {
+    loginMessage.textContent =
+      "নতুন Admin Password তৈরি করুন।";
+  }
+
+
+  /* পুরোনো input clear */
+
+  const oldPassword =
+    document.getElementById("adminPassword");
+
+  if (oldPassword) {
+    oldPassword.value = "";
+  }
+
+
+  const newPassword =
+    document.getElementById("newPassword");
+
+  if (newPassword) {
+    newPassword.value = "";
+    newPassword.focus();
+  }
+
+
+  const confirmPassword =
+    document.getElementById("confirmPassword");
+
+  if (confirmPassword) {
+    confirmPassword.value = "";
+  }
+
 }
-  </script>
+
+</script>
+
+
+</body>
 </html>
