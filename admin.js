@@ -1,10 +1,14 @@
 /* =========================================================
    ARIF FASHION HOUSE - ADMIN PANEL
    Product + Settings + Orders + Status + Print
+   + Admin Login + Password Setup + Reset + Change Password
    ========================================================= */
 
 const DATA_KEY = "afh_v3_data";
 const ORDER_KEY = "afh_orders";
+
+const ADMIN_PASSWORD_KEY = "afh_admin_password_hash";
+const ADMIN_SESSION_KEY = "afh_admin_session";
 
 
 /* =========================
@@ -65,6 +69,462 @@ function csv(text) {
 }
 
 
+/* =========================================================
+   ADMIN AUTHENTICATION
+   ========================================================= */
+
+/* SHA-256 Password Hash */
+
+async function hashPassword(password) {
+
+  const data = new TextEncoder().encode(password);
+
+  const hashBuffer =
+    await crypto.subtle.digest("SHA-256", data);
+
+  const hashArray =
+    Array.from(new Uint8Array(hashBuffer));
+
+  return hashArray
+    .map(b => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+
+/* Show Admin App */
+
+function showAdminApp() {
+
+  const loginScreen =
+    document.getElementById("loginScreen");
+
+  const adminApp =
+    document.getElementById("adminApp");
+
+  if (loginScreen) {
+    loginScreen.classList.add("hidden");
+  }
+
+  if (adminApp) {
+    adminApp.classList.remove("hidden");
+  }
+}
+
+
+/* Show Login Screen */
+
+function showLoginScreen() {
+
+  const loginScreen =
+    document.getElementById("loginScreen");
+
+  const adminApp =
+    document.getElementById("adminApp");
+
+  if (loginScreen) {
+    loginScreen.classList.remove("hidden");
+  }
+
+  if (adminApp) {
+    adminApp.classList.add("hidden");
+  }
+}
+
+
+/* First-time Setup / Existing Login */
+
+function initializeAdminAuth() {
+
+  const passwordHash =
+    localStorage.getItem(ADMIN_PASSWORD_KEY);
+
+  const session =
+    localStorage.getItem(ADMIN_SESSION_KEY);
+
+  const setupArea =
+    document.getElementById("setupArea");
+
+  const loginArea =
+    document.getElementById("loginArea");
+
+  const loginTitle =
+    document.getElementById("loginTitle");
+
+  const loginMessage =
+    document.getElementById("loginMessage");
+
+
+  /* Already logged in */
+
+  if (passwordHash && session === "1") {
+
+    showAdminApp();
+
+    return;
+  }
+
+
+  /* No password yet */
+
+  if (!passwordHash) {
+
+    showLoginScreen();
+
+    if (setupArea) {
+      setupArea.classList.remove("hidden");
+    }
+
+    if (loginArea) {
+      loginArea.classList.add("hidden");
+    }
+
+    if (loginTitle) {
+      loginTitle.textContent =
+        "🔐 Create Admin Password";
+    }
+
+    if (loginMessage) {
+      loginMessage.textContent =
+        "প্রথমবার Admin Panel ব্যবহার করতে নতুন Password তৈরি করুন।";
+    }
+
+    return;
+  }
+
+
+  /* Password exists */
+
+  showLoginScreen();
+
+  if (setupArea) {
+    setupArea.classList.add("hidden");
+  }
+
+  if (loginArea) {
+    loginArea.classList.remove("hidden");
+  }
+
+  if (loginTitle) {
+    loginTitle.textContent =
+      "🔐 Admin Login";
+  }
+
+  if (loginMessage) {
+    loginMessage.textContent =
+      "Admin Panel-এ প্রবেশ করতে Password দিন।";
+  }
+}
+
+
+/* Create First Admin Password */
+
+async function createAdminPassword() {
+
+  const newPassword =
+    value("newPassword");
+
+  const confirmPassword =
+    value("confirmPassword");
+
+
+  if (!newPassword) {
+    alert("⚠️ নতুন Password দিন।");
+    return;
+  }
+
+
+  if (newPassword.length < 6) {
+    alert("⚠️ Password কমপক্ষে 6 অক্ষরের হতে হবে।");
+    return;
+  }
+
+
+  if (newPassword !== confirmPassword) {
+    alert("⚠️ Password দুইটি একই নয়।");
+    return;
+  }
+
+
+  try {
+
+    const hash =
+      await hashPassword(newPassword);
+
+    localStorage.setItem(
+      ADMIN_PASSWORD_KEY,
+      hash
+    );
+
+    localStorage.setItem(
+      ADMIN_SESSION_KEY,
+      "1"
+    );
+
+
+    alert("✅ Admin Password তৈরি হয়েছে।");
+
+    showAdminApp();
+
+    loadSettings();
+    renderProducts();
+    renderOrders();
+    updateDashboard();
+
+  } catch (error) {
+
+    console.error(error);
+
+    alert(
+      "❌ Password তৈরি করা যায়নি। আবার চেষ্টা করুন।"
+    );
+  }
+}
+
+
+/* Admin Login */
+
+async function adminLogin() {
+
+  const password =
+    value("adminPassword");
+
+
+  if (!password) {
+    alert("⚠️ Admin Password দিন।");
+    return;
+  }
+
+
+  const savedHash =
+    localStorage.getItem(
+      ADMIN_PASSWORD_KEY
+    );
+
+
+  if (!savedHash) {
+
+    alert(
+      "⚠️ এখনো Admin Password তৈরি করা হয়নি।"
+    );
+
+    initializeAdminAuth();
+
+    return;
+  }
+
+
+  try {
+
+    const enteredHash =
+      await hashPassword(password);
+
+
+    if (enteredHash !== savedHash) {
+
+      alert("❌ ভুল Admin Password।");
+      return;
+    }
+
+
+    localStorage.setItem(
+      ADMIN_SESSION_KEY,
+      "1"
+    );
+
+
+    const input =
+      document.getElementById("adminPassword");
+
+    if (input) {
+      input.value = "";
+    }
+
+
+    showAdminApp();
+
+    loadSettings();
+    renderProducts();
+    renderOrders();
+    updateDashboard();
+
+  } catch (error) {
+
+    console.error(error);
+
+    alert(
+      "❌ Login করতে সমস্যা হয়েছে। আবার চেষ্টা করুন।"
+    );
+  }
+}
+
+
+/* Admin Logout */
+
+function adminLogout() {
+
+  localStorage.removeItem(
+    ADMIN_SESSION_KEY
+  );
+
+  showLoginScreen();
+
+  initializeAdminAuth();
+}
+
+
+/* =========================================================
+   PASSWORD RESET
+   ========================================================= */
+
+/*
+   Reset শুধু Admin Password reset করবে।
+   Product / Order / Settings data delete করবে না.
+*/
+
+function resetAdminPassword() {
+
+  const ok = confirm(
+    "Admin Password reset করতে চান?\n\n" +
+    "শুধু Admin Login Password reset হবে।\n" +
+    "Product, Order ও Settings data মুছবে না।"
+  );
+
+
+  if (!ok) return;
+
+
+  localStorage.removeItem(
+    ADMIN_PASSWORD_KEY
+  );
+
+  localStorage.removeItem(
+    ADMIN_SESSION_KEY
+  );
+
+
+  alert(
+    "✅ Password reset হয়েছে।\n\n" +
+    "এখন নতুন Admin Password তৈরি করুন।"
+  );
+
+
+  showLoginScreen();
+
+  initializeAdminAuth();
+}
+
+
+/* =========================================================
+   CHANGE ADMIN PASSWORD
+   ========================================================= */
+
+async function changeAdminPassword() {
+
+  const currentPassword =
+    prompt("বর্তমান Admin Password দিন:");
+
+  if (currentPassword === null) {
+    return;
+  }
+
+
+  const savedHash =
+    localStorage.getItem(
+      ADMIN_PASSWORD_KEY
+    );
+
+
+  if (!savedHash) {
+
+    alert(
+      "⚠️ Admin Password পাওয়া যায়নি।"
+    );
+
+    return;
+  }
+
+
+  try {
+
+    const currentHash =
+      await hashPassword(currentPassword);
+
+
+    if (currentHash !== savedHash) {
+
+      alert(
+        "❌ বর্তমান Password সঠিক নয়।"
+      );
+
+      return;
+    }
+
+
+    const newPassword =
+      prompt(
+        "নতুন Admin Password দিন:\n(কমপক্ষে 6 অক্ষর)"
+      );
+
+
+    if (newPassword === null) {
+      return;
+    }
+
+
+    if (newPassword.length < 6) {
+
+      alert(
+        "⚠️ Password কমপক্ষে 6 অক্ষরের হতে হবে।"
+      );
+
+      return;
+    }
+
+
+    const confirmPassword =
+      prompt("নতুন Password আবার লিখুন:");
+
+
+    if (confirmPassword === null) {
+      return;
+    }
+
+
+    if (newPassword !== confirmPassword) {
+
+      alert(
+        "❌ নতুন Password দুইটি একই নয়।"
+      );
+
+      return;
+    }
+
+
+    const newHash =
+      await hashPassword(newPassword);
+
+
+    localStorage.setItem(
+      ADMIN_PASSWORD_KEY,
+      newHash
+    );
+
+
+    alert(
+      "✅ Admin Password সফলভাবে পরিবর্তন হয়েছে।"
+    );
+
+  } catch (error) {
+
+    console.error(error);
+
+    alert(
+      "❌ Password পরিবর্তন করা যায়নি।"
+    );
+  }
+}
+
+
 /* =========================
    SETTINGS
    ========================= */
@@ -74,19 +534,48 @@ function loadSettings() {
   const data = getData();
   const s = data.settings || {};
 
-  const brand = document.getElementById("setBrand");
-  const hero = document.getElementById("setHero");
-  const shipping = document.getElementById("setShipping");
-  const warning = document.getElementById("setWarning");
-  const cod = document.getElementById("codOn");
-  const advance = document.getElementById("advanceOn");
+  const brand =
+    document.getElementById("setBrand");
 
-  if (brand) brand.value = s.brand || "";
-  if (hero) hero.value = s.hero || "";
-  if (shipping) shipping.value = s.shipping ?? 0;
-  if (warning) warning.value = s.warning || "";
-  if (cod) cod.checked = s.cod !== false;
-  if (advance) advance.checked = s.advance !== false;
+  const hero =
+    document.getElementById("setHero");
+
+  const shipping =
+    document.getElementById("setShipping");
+
+  const warning =
+    document.getElementById("setWarning");
+
+  const cod =
+    document.getElementById("codOn");
+
+  const advance =
+    document.getElementById("advanceOn");
+
+
+  if (brand) {
+    brand.value = s.brand || "";
+  }
+
+  if (hero) {
+    hero.value = s.hero || "";
+  }
+
+  if (shipping) {
+    shipping.value = s.shipping ?? 0;
+  }
+
+  if (warning) {
+    warning.value = s.warning || "";
+  }
+
+  if (cod) {
+    cod.checked = s.cod !== false;
+  }
+
+  if (advance) {
+    advance.checked = s.advance !== false;
+  }
 }
 
 
@@ -97,7 +586,9 @@ function saveSettings() {
   data.settings = {
     ...(data.settings || {}),
 
-    brand: value("setBrand") || "Arif Fashion House",
+    brand:
+      value("setBrand") ||
+      "Arif Fashion House",
 
     hero:
       value("setHero") ||
@@ -121,9 +612,12 @@ function saveSettings() {
         : true
   };
 
+
   saveData(data);
 
-  alert("✅ Website Settings saved successfully!");
+  alert(
+    "✅ Website Settings saved successfully!"
+  );
 
   loadSettings();
 }
@@ -141,27 +635,53 @@ function saveProduct() {
     value("pId") ||
     "p" + Date.now();
 
-  const name = value("pName");
-  const category = value("pCat") || "men";
-  const image = value("pImage");
-  const price = Number(value("pPrice")) || 0;
-  const oldPrice = Number(value("pOld")) || 0;
+  const name =
+    value("pName");
 
-  const colors = csv(value("pColors"));
-  const sizes = csv(value("pSizes"));
+  const category =
+    value("pCat") || "men";
 
-  const video = value("pVideo");
-  const description = value("pDesc");
+  const image =
+    value("pImage");
+
+  const price =
+    Number(value("pPrice")) || 0;
+
+  const oldPrice =
+    Number(value("pOld")) || 0;
+
+  const colors =
+    csv(value("pColors"));
+
+  const sizes =
+    csv(value("pSizes"));
+
+  const video =
+    value("pVideo");
+
+  const description =
+    value("pDesc");
+
 
   if (!name) {
-    alert("⚠️ Product name দিন।");
+
+    alert(
+      "⚠️ Product name দিন।"
+    );
+
     return;
   }
 
+
   if (!price) {
-    alert("⚠️ Product price দিন।");
+
+    alert(
+      "⚠️ Product price দিন।"
+    );
+
     return;
   }
+
 
   const product = {
 
@@ -170,28 +690,35 @@ function saveProduct() {
     name: name,
 
     cat: category,
+
     category: category,
 
     price: price,
 
     old: oldPrice,
+
     oldPrice: oldPrice,
 
     colors: colors,
+
     sizes: sizes,
 
     image: image,
 
     youtube: video,
+
     video: video,
 
     desc: description,
+
     description: description
   };
 
 
   const existingIndex =
-    data.products.findIndex(p => String(p.id) === String(id));
+    data.products.findIndex(
+      p => String(p.id) === String(id)
+    );
 
 
   if (existingIndex >= 0) {
@@ -201,13 +728,17 @@ function saveProduct() {
       ...product
     };
 
-    alert("✅ Product updated successfully!");
+    alert(
+      "✅ Product updated successfully!"
+    );
 
   } else {
 
     data.products.push(product);
 
-    alert("✅ Product added successfully!");
+    alert(
+      "✅ Product added successfully!"
+    );
   }
 
 
@@ -239,15 +770,20 @@ function clearProduct() {
     "pDesc"
   ];
 
+
   ids.forEach(id => {
 
-    const el = document.getElementById(id);
+    const el =
+      document.getElementById(id);
 
-    if (el) el.value = "";
+    if (el) {
+      el.value = "";
+    }
   });
 
 
-  const cat = document.getElementById("pCat");
+  const cat =
+    document.getElementById("pCat");
 
   if (cat) {
     cat.value = "men";
@@ -268,15 +804,21 @@ function editProduct(id) {
       p => String(p.id) === String(id)
     );
 
+
   if (!product) {
-    alert("Product পাওয়া যায়নি।");
+
+    alert(
+      "Product পাওয়া যায়নি।"
+    );
+
     return;
   }
 
 
   const set = (elementId, val) => {
 
-    const el = document.getElementById(elementId);
+    const el =
+      document.getElementById(elementId);
 
     if (el) {
       el.value = val ?? "";
@@ -295,7 +837,10 @@ function editProduct(id) {
     "men"
   );
 
-  set("pImage", product.image);
+  set(
+    "pImage",
+    product.image
+  );
 
   set(
     "pPrice",
@@ -357,6 +902,7 @@ function deleteProduct(id) {
       p => String(p.id) === String(id)
     );
 
+
   if (!product) return;
 
 
@@ -364,6 +910,7 @@ function deleteProduct(id) {
     "আপনি কি এই Product delete করতে চান?\n\n" +
     product.name
   );
+
 
   if (!ok) return;
 
@@ -408,12 +955,14 @@ function renderProducts() {
   const box =
     document.getElementById("adminProducts");
 
+
   if (!box) return;
 
 
   const data = getData();
 
-  const products = data.products || [];
+  const products =
+    data.products || [];
 
 
   if (!products.length) {
@@ -435,6 +984,7 @@ function renderProducts() {
           ? product.colors
           : csv(product.colors);
 
+
       const sizes =
         Array.isArray(product.sizes)
           ? product.sizes
@@ -442,8 +992,7 @@ function renderProducts() {
 
 
       const image =
-        product.image ||
-        "";
+        product.image || "";
 
 
       return `
@@ -471,7 +1020,10 @@ function renderProducts() {
 
 
           <h3>
-            ${escapeHtml(product.name || "Unnamed Product")}
+            ${escapeHtml(
+              product.name ||
+              "Unnamed Product"
+            )}
           </h3>
 
 
@@ -494,7 +1046,8 @@ function renderProducts() {
             </strong>
 
             ${
-              product.oldPrice || product.old
+              product.oldPrice ||
+              product.old
                 ? `
                   <del>
                     ${money(
@@ -513,7 +1066,9 @@ function renderProducts() {
               ? `
                 <p>
                   🎨 Colors:
-                  ${escapeHtml(colors.join(", "))}
+                  ${escapeHtml(
+                    colors.join(", ")
+                  )}
                 </p>
               `
               : ""
@@ -525,7 +1080,9 @@ function renderProducts() {
               ? `
                 <p>
                   📏 Sizes:
-                  ${escapeHtml(sizes.join(", "))}
+                  ${escapeHtml(
+                    sizes.join(", ")
+                  )}
                 </p>
               `
               : ""
@@ -533,7 +1090,8 @@ function renderProducts() {
 
 
           ${
-            product.youtube || product.video
+            product.youtube ||
+            product.video
               ? `
                 <p>
                   🎬 Video:
@@ -645,6 +1203,7 @@ function renderOrders() {
   const box =
     document.getElementById("orders");
 
+
   if (!box) return;
 
 
@@ -730,445 +1289,4 @@ function renderOrders() {
 
           <p>
             <b>Phone:</b>
-            ${escapeHtml(phone)}
-          </p>
-
-
-          <p>
-            <b>Address:</b>
-            ${escapeHtml(address)}
-          </p>
-
-
-          <p>
-            <b>Product:</b>
-            ${escapeHtml(
-              typeof product === "string"
-                ? product
-                : JSON.stringify(product)
-            )}
-          </p>
-
-
-          <p>
-            <b>Quantity:</b>
-            ${escapeHtml(qty)}
-          </p>
-
-
-          <p>
-            <b>Payment:</b>
-            ${escapeHtml(payment)}
-          </p>
-
-
-          <p>
-            <b>Total:</b>
-            <strong>
-              ${money(total)}
-            </strong>
-          </p>
-
-
-          <label>
-            <b>Order Status:</b>
-
-            <select
-              onchange="updateStatus(${index}, this.value)"
-            >
-
-              ${
-                ORDER_STATUSES.map(
-                  s => `
-                    <option
-                      value="${s}"
-                      ${s === status ? "selected" : ""}
-                    >
-                      ${s}
-                    </option>
-                  `
-                ).join("")
-              }
-
-            </select>
-
-          </label>
-
-
-          <div
-            style="
-              margin-top:12px;
-              display:flex;
-              gap:8px;
-              flex-wrap:wrap;
-            "
-          >
-
-            <button
-              type="button"
-              onclick="printOrder(${index})"
-            >
-              🖨️ Print
-            </button>
-
-          </div>
-
-        </div>
-
-      `;
-
-    }).join("");
-}
-
-
-/* =========================
-   UPDATE ORDER STATUS
-   ========================= */
-
-function updateStatus(index, status) {
-
-  const orders = getOrders();
-
-  if (!orders[index]) return;
-
-
-  orders[index].status = status;
-
-
-  localStorage.setItem(
-    ORDER_KEY,
-    JSON.stringify(orders)
-  );
-
-
-  renderOrders();
-
-  updateDashboard();
-}
-
-
-/* =========================
-   PRINT ORDER
-   ========================= */
-
-function printOrder(index) {
-
-  const orders = getOrders();
-
-  const order = orders[index];
-
-  if (!order) {
-    alert("Order পাওয়া যায়নি।");
-    return;
-  }
-
-
-  const customer =
-    order.customer ||
-    order.name ||
-    order.customerName ||
-    "";
-
-
-  const phone =
-    order.phone ||
-    order.mobile ||
-    "";
-
-
-  const address =
-    order.address ||
-    "";
-
-
-  const product =
-    order.product ||
-    order.productName ||
-    "";
-
-
-  const qty =
-    order.qty ||
-    order.quantity ||
-    1;
-
-
-  const payment =
-    order.payment ||
-    order.paymentMethod ||
-    "COD";
-
-
-  const total =
-    order.total ||
-    order.grandTotal ||
-    0;
-
-
-  const status =
-    order.status ||
-    "Pending";
-
-
-  const orderDate =
-    order.date ||
-    order.createdAt ||
-    new Date().toLocaleString("en-BD");
-
-
-  const printWindow =
-    window.open(
-      "",
-      "_blank",
-      "width=800,height=700"
-    );
-
-
-  if (!printWindow) {
-
-    alert(
-      "Popup blocked হয়েছে। Browser থেকে popup allow করুন।"
-    );
-
-    return;
-  }
-
-
-  printWindow.document.write(`
-
-<!doctype html>
-
-<html lang="bn">
-
-<head>
-
-<meta charset="utf-8">
-
-<title>Order Print</title>
-
-<style>
-
-body{
-  font-family:Arial,sans-serif;
-  padding:30px;
-  color:#222;
-}
-
-.container{
-  max-width:700px;
-  margin:auto;
-  border:1px solid #ddd;
-  padding:25px;
-  border-radius:12px;
-}
-
-h1{
-  margin-top:0;
-}
-
-table{
-  width:100%;
-  border-collapse:collapse;
-  margin-top:20px;
-}
-
-td,th{
-  border:1px solid #ddd;
-  padding:10px;
-  text-align:left;
-}
-
-.total{
-  font-size:20px;
-  font-weight:bold;
-}
-
-.footer{
-  margin-top:30px;
-  text-align:center;
-}
-
-@media print{
-
-  body{
-    padding:0;
-  }
-
-  .container{
-    border:0;
-  }
-
-}
-
-</style>
-
-</head>
-
-
-<body>
-
-<div class="container">
-
-<h1>Arif Fashion House</h1>
-
-<h2>Customer Delivery Form</h2>
-
-
-<table>
-
-<tr>
-<th>Order Date</th>
-<td>${escapeHtml(orderDate)}</td>
-</tr>
-
-
-<tr>
-<th>Customer</th>
-<td>${escapeHtml(customer)}</td>
-</tr>
-
-
-<tr>
-<th>Phone</th>
-<td>${escapeHtml(phone)}</td>
-</tr>
-
-
-<tr>
-<th>Address</th>
-<td>${escapeHtml(address)}</td>
-</tr>
-
-
-<tr>
-<th>Product</th>
-<td>${escapeHtml(
-  typeof product === "string"
-    ? product
-    : JSON.stringify(product)
-)}</td>
-</tr>
-
-
-<tr>
-<th>Quantity</th>
-<td>${escapeHtml(qty)}</td>
-</tr>
-
-
-<tr>
-<th>Payment</th>
-<td>${escapeHtml(payment)}</td>
-</tr>
-
-
-<tr>
-<th>Total</th>
-<td class="total">${money(total)}</td>
-</tr>
-
-
-<tr>
-<th>Status</th>
-<td>${escapeHtml(status)}</td>
-</tr>
-
-</table>
-
-
-<div class="footer">
-
-<p>Thank you for shopping with Arif Fashion House.</p>
-
-</div>
-
-</div>
-
-
-<script>
-
-window.onload = function(){
-
-  window.print();
-
-};
-
-<\/script>
-
-</body>
-
-</html>
-
-  `);
-
-
-  printWindow.document.close();
-}
-
-
-/* =========================
-   DASHBOARD
-   ========================= */
-
-function updateDashboard() {
-
-  const data = getData();
-
-  const orders = getOrders();
-
-
-  const productCount =
-    document.getElementById("productCount");
-
-  const orderCount =
-    document.getElementById("orderCount");
-
-  const pendingCount =
-    document.getElementById("pendingCount");
-
-
-  if (productCount) {
-
-    productCount.textContent =
-      data.products.length;
-  }
-
-
-  if (orderCount) {
-
-    orderCount.textContent =
-      orders.length;
-  }
-
-
-  if (pendingCount) {
-
-    pendingCount.textContent =
-      orders.filter(
-        o =>
-          !o.status ||
-          o.status === "Pending"
-      ).length;
-
-  }
-}
-
-
-/* =========================
-   INITIAL LOAD
-   ========================= */
-
-document.addEventListener(
-  "DOMContentLoaded",
-  function () {
-
-    loadSettings();
-
-    renderProducts();
-
-    renderOrders();
-
-    updateDashboard();
-
-  }
-);
+         
