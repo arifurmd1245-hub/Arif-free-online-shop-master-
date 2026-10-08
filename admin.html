@@ -70,6 +70,13 @@
       >
         🔓 Login
       </button>
+      <button
+  type="button"
+  onclick="resetAdminPassword()"
+  style="margin-top:10px"
+>
+  🔄 Forgot / Reset Password
+      </button>
 
     </div>
 
@@ -328,4 +335,25 @@
 <script src="admin.js"></script>
 
 </body>
+  <script>
+function resetAdminPassword() {
+  const ok = confirm(
+    "Admin Password reset করতে চান?\n\n" +
+    "শুধু Admin Login Password reset হবে।\n" +
+    "Product ও Order data মুছবে না।"
+  );
+
+  if (!ok) return;
+
+  localStorage.removeItem("afh_admin_password_hash");
+  localStorage.removeItem("afh_admin_session");
+
+  alert(
+    "✅ Password reset হয়েছে।\n\n" +
+    "এখন নতুন Admin Password তৈরি করুন।"
+  );
+
+  location.reload();
+}
+  </script>
 </html>
